@@ -1,0 +1,179 @@
+from __future__ import division, print_function
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# ########Problem 1.2a: Exponential decay and background signal
+
+def exp_decay(p, x):
+    """
+    returns p[0]+p[1]exp(-x/p[3])
+    """
+    a, b, gamma = p
+    return  a + b * np.exp(-x/gamma)
+
+#Make a set of evenly spaced points in x
+x=np.linspace(-5.0, 5.0, 40)
+
+#compute y
+y=exp_decay(np.array([2.0, 3.0, 4.0]), x)
+
+#Plot as dots
+plt.figure(0)
+plt.plot(x, y,'k.')
+plt.grid(True)
+plt.xlabel(r'$x$')
+plt.ylabel(r'$y$');
+plt.draw()
+plt.show()
+
+# #################Problem 1.2b Cauchy Distribution
+
+def cauchyDist(p, x):
+    """
+    Returns the Cauchy distribution,
+    y = beta / (pi * (beta**2 + (x-alpha)**2))
+    """
+    
+    alpha, beta = p
+    
+    return beta / (np.pi * (beta**2 + (x-alpha)**2))
+
+# Make a set of evenly spaced points in x
+x = np.linspace(0, 6.0, 100)
+
+# Compute y for alpha = 3, beta = 1
+y = cauchyDist(np.array([3.0, 1.0]), x)
+
+# Plot as dots to verify it was calculated for each value of x
+plt.figure(1)
+plt.plot(x, y, 'k.')
+plt.grid(True)
+plt.margins(x=0.02, y=0.02)
+plt.xlabel(r'$x$')
+plt.ylabel(r'$y$')
+
+plt.draw()
+plt.show()
+
+# #################Problem 1.2c Hill Function
+def hill_func(p, x):
+    k, a = p
+    return ((x)**a) / (k**a + x**a) 
+    
+# Make a set of evenly spaced points in x
+x = np.linspace(0,20.0, 100)
+
+# Compute y
+y = hill_func(np.array([7.0, 4.0]), x)
+
+# Plot as dots to verify it was calculated for each value of x
+plt.figure(2)
+plt.plot(x, y, 'k.')
+plt.grid(True)
+plt.margins(x=0.02, y=0.02)
+plt.xlabel(r'$x$')
+plt.ylabel(r'$y$')
+plt.draw()
+plt.show()
+
+
+
+
+# ############## Problem 1.3b 
+# Import data from computer
+fname = 'D:/Google Drive/BE103/Homework 1/hw1data.csv'
+df = pd.read_csv(fname, comment='#')
+
+# Rename labeled tubulin column
+df.rename(columns={'time to catastrophe with labeled tubulin (s)': 'labeled'}, inplace=True)
+
+# Plot figure with labeled tubulin
+plt.figure('Labeled')
+plt.hist(df.labeled, bins=35, normed=False)
+plt.grid(True, axis='y')
+plt.xlabel('Catastrophe time (s)')
+plt.ylabel('Distribution')
+plt.draw()
+plt.show()
+
+# Rename column with unlabeled tubulin
+df.rename(columns={'time to catastrophe with unlabeled tubulin (s)': 'unlabeled'}, inplace=True)
+
+# Plot figure with unlabeled tubulin
+plt.figure('Unlabeled')
+plt.hist(df.unlabeled.dropna(), bins=35, normed=False)
+plt.grid(True, axis='y')
+plt.xlabel('Catastrophe time (s)')
+plt.ylabel('Distribution')
+plt.draw()
+plt.show()
+
+# #################Problem 1.3c
+# Import data from computer
+fname = 'D:/Google Drive/BE103/Homework 1/hw1data.csv'
+df = pd.read_csv(fname, comment='#')
+
+# Rename labeled tubulin column
+df.rename(columns={'time to catastrophe with labeled tubulin (s)': 'labeled'}, inplace=True)
+
+# Plot figure with labeled tubulin
+plt.figure('Labeled')
+plt.hist(df.labeled, bins=35, normed=False, cumulative=True)
+plt.grid(True, axis='y')
+plt.xlabel('Catastrophe time (s)')
+plt.ylabel('Cumulative Distribution')
+plt.draw()
+plt.show()
+
+# Rename column with unlabeled tubulin
+df.rename(columns={'time to catastrophe with unlabeled tubulin (s)': 'unlabeled'}, inplace=True)
+
+# Plot figure with unlabeled tubulin
+plt.figure('Unlabeled')
+plt.hist(df.unlabeled.dropna(), bins=35, normed=False, cumulative=True)
+plt.grid(True, axis='y')
+plt.xlabel('Catastrophe time (s)')
+plt.ylabel('Cumulative Distribution')
+plt.draw()
+plt.show()
+
+# ####################Problem 1.3d
+fn = 'gardner_et_al_2011_time_to_catastrophe_dic.csv'
+data = pd.read_csv(fn, comment='#')
+data.rename(columns={data.columns[0]: 'lab', data.columns[1]: 'ulab'}, inplace=True)
+
+plt.close('all') # Close open figures
+
+# Plot Labeled histogram
+plt.figure('Labeled')
+x = data.lab
+# Capture histogram information to calculate (x,y) cumulative points.
+# Method inspired from "http://stackoverflow.com/questions/19222711/
+#   python-histogram-with-points-and-error-bars
+labcounts, binedge, c = plt.hist(x, bins=max(x), cumulative=True)
+# Calculate cumulative distribution (x,y) coordinates
+labcenters = (binedge[:-1] + binedge[1:])/2
+plt.draw()
+plt.show()
+
+# Plot Unlabeled histogram. Same procedure as above.
+plt.figure('Unlabeled')
+x = data.dropna()['ulab']
+ulabcounts, binedge, c = plt.hist(x, bins=max(x), cumulative=True)
+ulabcenters = (binedge[:-1] + binedge[1:])/2
+plt.draw()
+plt.show()
+
+# Plot a mimic of the cumulative distributions seen in the paper
+plt.figure('Dot Cumulative')
+# Convert counts to 0 to 1 floating points
+uNormCounts = ulabcounts / max(ulabcounts)
+lNormCounts = labcounts / max(labcounts)
+plt.plot(ulabcenters, uNormCounts, 'b.', \
+  labcenters, lNormCounts, 'g.')
+plt.title('Distribution')
+plt.xlabel('Catastrophe time (s)')
+plt.ylabel('Cumulative Distribution')
+plt.draw()
+plt.show()
